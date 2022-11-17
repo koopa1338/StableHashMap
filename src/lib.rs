@@ -14,6 +14,7 @@ where
     K: Clone + Eq + PartialEq + Hash,
     V: Clone,
 {
+    #[must_use]
     pub fn new() -> Self {
         Self {
             hashmap: HashMap::new(),
@@ -21,6 +22,7 @@ where
         }
     }
 
+    #[must_use]
     pub fn with_capacity(size: usize) -> Self {
         Self {
             hashmap: HashMap::with_capacity(size),
@@ -42,15 +44,23 @@ where
     pub fn get(&mut self, idx: usize) -> Option<(&K, &V)> {
         self.key_vec
             .get(idx)
-            .and_then(|key| self.hashmap.get_key_value(&key))
+            .and_then(|key| self.hashmap.get_key_value(key))
     }
 
     pub fn get_mut(&mut self, idx: usize) -> Option<(&mut K, &mut V)> {
-        self.key_vec.get_mut(idx).and_then(|key| {
-            self.hashmap
-                .get_mut(&key)
-                .and_then(|value| Some((key, value)))
-        })
+        self.key_vec
+            .get_mut(idx)
+            .and_then(|key| self.hashmap.get_mut(key).map(|value| (key, value)))
+    }
+}
+
+impl<K, V> Default for StableHashMap<K, V>
+where
+    K: Clone + Eq + PartialEq + Hash,
+    V: Clone,
+{
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -75,8 +85,7 @@ where
             self.stable_map
                 .hashmap
                 .get(key)
-                .map(|value| Some((key.clone(), value.clone())))
-                .unwrap_or(None)
+                .map(|value| (key.clone(), value.clone()))
         });
         self.index += 1;
 
@@ -106,13 +115,9 @@ where
     V: Clone,
 {
     fn from(tuples: &[(K, V)]) -> Self {
-        let key_vec = tuples
-            .clone()
-            .into_iter()
-            .map(|(k, _)| k.clone())
-            .collect::<Vec<_>>();
+        let key_vec = (*tuples).iter().map(|(k, _)| k.clone()).collect::<Vec<_>>();
         let hashmap = tuples
-            .into_iter()
+            .iter()
             .map(|(k, v)| (k.clone(), v.clone()))
             .collect::<HashMap<_, _>>();
         Self { hashmap, key_vec }
