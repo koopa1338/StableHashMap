@@ -3,6 +3,8 @@ name = "stable_hash_map"
 version = "0.0.1"
 edition = "2021"
 authors = ["koopa1338 <sinner1991@gmail.com>"]
+license-file = "LICENSE.md"
+description = "a hashmap that keeps track of the insertion order of elements"
 
 
 [dependencies]
