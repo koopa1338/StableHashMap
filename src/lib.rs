@@ -1,15 +1,38 @@
-use std::{collections::HashMap, hash::Hash};
+use std::{
+    collections::{hash_map::RandomState, HashMap},
+    hash::Hash,
+};
 
-pub struct StableHashMap<K, V>
+pub struct StableHashMap<K, V, H = RandomState>
 where
     K: Clone + Eq + PartialEq + Hash,
     V: Clone,
 {
-    hashmap: HashMap<K, V>,
+    hashmap: HashMap<K, V, H>,
     key_vec: Vec<K>,
 }
 
-impl<K, V> StableHashMap<K, V>
+impl<K, V, H> StableHashMap<K, V, H>
+where
+    K: Clone + Eq + PartialEq + Hash,
+    V: Clone,
+{
+    pub fn with_hasher(hash_builder: H) -> Self {
+        Self {
+            hashmap: HashMap::with_hasher(hash_builder),
+            key_vec: Vec::new(),
+        }
+    }
+
+    pub fn with_capacity_and_hasher(capacity: usize, hash_builder: H) -> Self {
+        Self {
+            hashmap: HashMap::with_capacity_and_hasher(capacity, hash_builder),
+            key_vec: Vec::new(),
+        }
+    }
+}
+
+impl<K, V> StableHashMap<K, V, RandomState>
 where
     K: Clone + Eq + PartialEq + Hash,
     V: Clone,
