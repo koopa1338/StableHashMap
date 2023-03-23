@@ -8,7 +8,7 @@ where
     K: Clone + Eq + PartialEq + Hash,
     V: Clone,
 {
-    hashmap: HashMap<K, V, H>,
+    hashmap: HashMap<usize, V, H>,
     key_vec: Vec<K>,
 }
 
@@ -54,26 +54,34 @@ where
     }
 
     pub fn push(&mut self, key: K, value: V) {
+        self.hashmap.insert(self.key_vec.len(), value);
         self.key_vec.push(key.clone());
-        self.hashmap.insert(key, value);
     }
 
-    pub fn pop(&mut self) -> Option<(&K, &V)> {
-        self.key_vec
-            .pop()
-            .and_then(|key| self.hashmap.get_key_value(&key))
+    pub fn pop(&mut self) -> Option<(K, V)> {
+        if let Some(key) = self.key_vec.pop() {
+            if let Some(val) = self.hashmap.remove(&self.key_vec.len()) {
+                Some((key, val))
+            } else {
+                None
+            }
+        } else {
+            None
+        }
     }
 
     pub fn get(&mut self, idx: usize) -> Option<(&K, &V)> {
-        self.key_vec
-            .get(idx)
-            .and_then(|key| self.hashmap.get_key_value(key))
+        self.key_vec.get(idx).and_then(|key| {
+            self.hashmap
+                .get_key_value(&idx)
+                .map(|(_, value)| (key, value))
+        })
     }
 
     pub fn get_mut(&mut self, idx: usize) -> Option<(&mut K, &mut V)> {
         self.key_vec
             .get_mut(idx)
-            .and_then(|key| self.hashmap.get_mut(key).map(|value| (key, value)))
+            .and_then(|key| self.hashmap.get_mut(&idx).map(|value| (key, value)))
     }
 }
 
@@ -107,7 +115,7 @@ where
         let result = self.stable_map.key_vec.get(self.index).and_then(|key| {
             self.stable_map
                 .hashmap
-                .get(key)
+                .get(&self.index)
                 .map(|value| (key.clone(), value.clone()))
         });
         self.index += 1;
@@ -141,7 +149,8 @@ where
         let key_vec = (*tuples).iter().map(|(k, _)| k.clone()).collect::<Vec<_>>();
         let hashmap = tuples
             .iter()
-            .map(|(k, v)| (k.clone(), v.clone()))
+            .enumerate()
+            .map(|(idx, (_, v))| (idx, v.clone()))
             .collect::<HashMap<_, _>>();
         Self { hashmap, key_vec }
     }
@@ -158,7 +167,11 @@ where
             .into_iter()
             .map(|(k, _)| k)
             .collect::<Vec<_>>();
-        let hashmap = tuples.into_iter().collect::<HashMap<_, _>>();
+        let hashmap = tuples
+            .into_iter()
+            .enumerate()
+            .map(|(usize, (_, v))| (usize, v))
+            .collect::<HashMap<_, _>>();
         Self { hashmap, key_vec }
     }
 }
