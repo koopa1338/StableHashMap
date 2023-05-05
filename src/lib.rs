@@ -82,6 +82,22 @@ where
             .get_mut(idx)
             .and_then(|key| self.hashmap.get_mut(&idx).map(|value| (key, value)))
     }
+
+    pub fn get_by_key(&self, key: &K) -> Option<&V> {
+        if let Some(idx) = self.key_vec.iter().position(|k| k == key) {
+            self.hashmap.get(&idx)
+        } else {
+            None
+        }
+    }
+
+    pub fn get_mut_by_key(&mut self, key: &K) -> Option<&mut V> {
+        if let Some(idx) = self.key_vec.iter().position(|k| k == key) {
+            self.hashmap.get_mut(&idx)
+        } else {
+            None
+        }
+    }
 }
 
 impl<K, V> Default for StableHashMap<K, V>
