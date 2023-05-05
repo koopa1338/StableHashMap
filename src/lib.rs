@@ -55,22 +55,21 @@ where
 
     pub fn push(&mut self, key: K, value: V) {
         self.hashmap.insert(self.key_vec.len(), value);
-        self.key_vec.push(key.clone());
+        self.key_vec.push(key);
     }
 
     pub fn pop(&mut self) -> Option<(K, V)> {
         if let Some(key) = self.key_vec.pop() {
-            if let Some(val) = self.hashmap.remove(&self.key_vec.len()) {
-                Some((key, val))
-            } else {
-                None
-            }
+            self.hashmap
+                .remove(&self.key_vec.len())
+                .map(|val| (key, val))
         } else {
             None
         }
     }
 
-    pub fn get(&mut self, idx: usize) -> Option<(&K, &V)> {
+    #[must_use]
+    pub fn get(&self, idx: usize) -> Option<(&K, &V)> {
         self.key_vec.get(idx).and_then(|key| {
             self.hashmap
                 .get_key_value(&idx)
