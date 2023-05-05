@@ -59,13 +59,11 @@ where
     }
 
     pub fn pop(&mut self) -> Option<(K, V)> {
-        if let Some(key) = self.key_vec.pop() {
+        self.key_vec.pop().and_then(|key| {
             self.hashmap
                 .remove(&self.key_vec.len())
                 .map(|val| (key, val))
-        } else {
-            None
-        }
+        })
     }
 
     #[must_use]
@@ -84,19 +82,17 @@ where
     }
 
     pub fn get_by_key(&self, key: &K) -> Option<&V> {
-        if let Some(idx) = self.key_vec.iter().position(|k| k == key) {
-            self.hashmap.get(&idx)
-        } else {
-            None
-        }
+        self.key_vec
+            .iter()
+            .position(|k| k == key)
+            .and_then(|idx| self.hashmap.get(&idx))
     }
 
     pub fn get_mut_by_key(&mut self, key: &K) -> Option<&mut V> {
-        if let Some(idx) = self.key_vec.iter().position(|k| k == key) {
-            self.hashmap.get_mut(&idx)
-        } else {
-            None
-        }
+        self.key_vec
+            .iter()
+            .position(|k| k == key)
+            .and_then(|idx| self.hashmap.get_mut(&idx))
     }
 }
 
