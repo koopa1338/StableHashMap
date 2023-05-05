@@ -162,12 +162,12 @@ where
     V: Clone,
 {
     fn from(tuples: &[(K, V)]) -> Self {
-        let key_vec = (*tuples).iter().map(|(k, _)| k.clone()).collect::<Vec<_>>();
-        let hashmap = tuples
+        let key_vec: Vec<K> = tuples.iter().map(|(k, _)| k.clone()).collect();
+        let hashmap: HashMap<usize, V> = tuples
             .iter()
             .enumerate()
             .map(|(idx, (_, v))| (idx, v.clone()))
-            .collect::<HashMap<_, _>>();
+            .collect();
         Self { hashmap, key_vec }
     }
 }
@@ -178,16 +178,12 @@ where
     V: Clone,
 {
     fn from(tuples: Vec<(K, V)>) -> Self {
-        let key_vec = tuples
-            .clone()
-            .into_iter()
-            .map(|(k, _)| k)
-            .collect::<Vec<_>>();
-        let hashmap = tuples
+        let key_vec: Vec<K> = tuples.clone().into_iter().map(|(k, _)| k).collect();
+        let hashmap: HashMap<usize, V> = tuples
             .into_iter()
             .enumerate()
             .map(|(usize, (_, v))| (usize, v))
-            .collect::<HashMap<_, _>>();
+            .collect();
         Self { hashmap, key_vec }
     }
 }
