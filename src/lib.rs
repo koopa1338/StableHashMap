@@ -17,6 +17,7 @@ where
     K: Clone + Eq + PartialEq + Hash,
     V: Clone,
 {
+    #[must_use]
     pub fn with_hasher(hash_builder: H) -> Self {
         Self {
             hashmap: HashMap::with_hasher(hash_builder),
@@ -24,6 +25,7 @@ where
         }
     }
 
+    #[must_use]
     pub fn with_capacity_and_hasher(capacity: usize, hash_builder: H) -> Self {
         Self {
             hashmap: HashMap::with_capacity_and_hasher(capacity, hash_builder),
@@ -75,12 +77,14 @@ where
         })
     }
 
+    #[must_use]
     pub fn get_mut(&mut self, idx: usize) -> Option<(&mut K, &mut V)> {
         self.key_vec
             .get_mut(idx)
             .and_then(|key| self.hashmap.get_mut(&idx).map(|value| (key, value)))
     }
 
+    #[must_use]
     pub fn get_by_key(&self, key: &K) -> Option<&V> {
         self.key_vec
             .iter()
@@ -88,6 +92,7 @@ where
             .and_then(|idx| self.hashmap.get(&idx))
     }
 
+    #[must_use]
     pub fn get_mut_by_key(&mut self, key: &K) -> Option<&mut V> {
         self.key_vec
             .iter()
